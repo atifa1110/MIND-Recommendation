@@ -154,7 +154,7 @@ Evaluasi dilakukan menggunakan dua metrik utama, yaitu `Precision dan Recall`:
 
 2. **Recall**: Mengukur seberapa banyak artikel relevan berhasil ditemukan oleh sistem dibandingkan dengan semua artikel relevan yang sebenarnya ada.
 * Rumus : 
-![alt text](data/image_recall.png.png)
+![alt text](data/image_recall.png)
 
 Dengan kombinasi kedua metrik ini, kita bisa menilai keseimbangan antara akurasi rekomendasi (precision) dan cakupan rekomendasi (recall).
 
