@@ -72,7 +72,6 @@ Berikut isi filenya :
 - Missing values: ditemukan pada kolom *History* (3238 baris).  
 - Duplikasi: tidak ditemukan nilai duplikat.  
 
-
 ---
 ### Data Visualization 
 
@@ -118,7 +117,7 @@ Pada tahap ini, beberapa teknik persiapan data dilakukan untuk memastikan data s
 2. **Menghilangkan Nilai Null dan Duplikat**: Membersihkan dataset dari nilai kosong dan baris duplikat untuk mengurangi bias serta menjaga kualitas data.
 3.  **Tabel Behaviors User***: Berisi interaksi pengguna dengan berita (misalnya klik atau tidak). Tabel ini berfungsi sebagai label perilaku pengguna dalam evaluasi sistem rekomendasi, sehingga model dapat menilai relevansi prediksi dengan preferensi nyata pengguna.
 4. **Kolom Full Text**: Kolom title dan abstract digabung menjadi kolom baru Full_Text. Tujuannya agar model menangkap kata kunci dan konteks artikel dengan lebih kaya.
-5. **Pra-pemrosesan Teks**: Membersihkan teks pada kolom Full_Text (misalnya case folding, stopword removal, normalisasi, lemmatization) yang disimpan ke dalam cleaned text agar siap digunakan untuk analisis.
+5. **Pra-pemrosesan Teks**: Membersihkan teks pada kolom Full_Text seperti case folding, Punctuation Removal, stopword removal, stemming, ubah kembali ke string yang disimpan ke dalam cleaned text agar siap digunakan untuk analisis.
 6. **Representasi Teks ke Vektor**: Mengubah teks bersih di kolom Cleaned_Text menjadi representasi numerik (misalnya `TF-IDF` atau word embeddings) agar bisa diproses oleh model pembelajaran mesin. Pada tahap ini digunakan `min_df=5` untuk mengabaikan kata yang terlalu jarang muncul (kurang dari 5 dokumen) dan `stop_words= english` untuk membuang kata umum yang tidak informatif, sehingga hanya kata yang relevan yang dipakai model.
 
 -----
@@ -158,12 +157,15 @@ Evaluasi dilakukan menggunakan dua metrik utama, yaitu `Precision dan Recall`:
 
 Dengan kombinasi kedua metrik ini, kita bisa menilai keseimbangan antara akurasi rekomendasi (precision) dan cakupan rekomendasi (recall).
 
+**Salah satu Hasil Rekomendasi Kepada Salah Satu User**:
+<img src="data/contoh-top.png" alt="model_comparison" width="100%">
+
 **Hasil Evaluasi pada Top-50 User**:
 <img src="data/user_bar_chart.png" alt="model_comparison" width="100%">
 <img src="data/average_metrics_bar_chart.png" alt="model_comparison" width="100%">
 
 - Rata-rata Precision@10 = 0.50, artinya dari 10 rekomendasi yang diberikan, sekitar setengahnya relevan dengan kategori berita yang memang diminati pengguna.
-- Rata-rata Recall@10 = 0.27, yang berarti hanya 27% dari keseluruhan minat pengguna berhasil tercakup dalam 10 rekomendasi teratas.
+- Rata-rata Recall@10 = 0.28, yang berarti hanya 28% dari keseluruhan minat pengguna berhasil tercakup dalam 10 rekomendasi teratas.
 - Interpretasi: Sistem rekomendasi berbasis konten memiliki tingkat akurasi yang cukup baik karena rekomendasi cenderung sesuai dengan kategori berita terakhir yang diklik pengguna. Namun, cakupan minat pengguna masih terbatas, sehingga sistem lebih fokus pada kesamaan konten terakhir daripada menggali variasi minat pengguna secara lebih luas.
 
 **Kesimpulan**: Dengan ini kita bisa menjawab pertanyaan problem state yang ada di atas 
@@ -174,7 +176,7 @@ Judul dan abstrak berhasil digabungkan menjadi **Full Text**, kemudian diproses 
 Sistem rekomendasi berbasis **content-based filtering** dibangun menggunakan model **Nearest Neighbors** pada vektor **TF-IDF**. Sistem ini dapat memberikan daftar artikel yang paling **mirip dengan riwayat bacaan terakhir pengguna**.
 
 3. Seberapa relevan rekomendasi yang dihasilkan model content-based filtering dibandingkan dengan riwayat klik aktual pengguna?
-**Berdasarkan evaluasi pada top-50 user**, sistem menghasilkan **Precision@10 = 0.50** dan **Recall@10 = 0.27**.  Artinya, **separuh rekomendasi sudah relevan dengan minat pengguna**, namun **cakupannya masih terbatas**.  Sistem cenderung fokus pada **kesamaan dengan artikel terakhir yang diklik**, sehingga **akurat tetapi belum sepenuhnya menutupi seluruh variasi minat pengguna**.
+**Berdasarkan evaluasi pada top-50 user**, sistem menghasilkan **Precision@10 = 0.50** dan **Recall@10 = 0.28**.  Artinya, **separuh rekomendasi sudah relevan dengan minat pengguna**, namun **cakupannya masih terbatas**.  Sistem cenderung fokus pada **kesamaan dengan artikel terakhir yang diklik**, sehingga **akurat tetapi belum sepenuhnya menutupi seluruh variasi minat pengguna**.
 
 ----
 

@@ -515,7 +515,7 @@ def get_recommendations(news_id, top_n=5):
     return rekom[['News_ID','Title','Category','Similarity']]
 
 # Cek hasil rekomendasi top 10 salah satu news
-get_recommendations("N56117", top_n=10)
+get_recommendations("N58133", top_n=10)
 
 # 1. Merge behaviors user dengan news_clean untuk dapat kolom Category
 interaksi_merged = behaviors_user.merge(
@@ -535,189 +535,141 @@ category_user = behaviors_pos.groupby('User_ID')['Category'].apply(set).to_dict(
 # Cek category yang pernah user klik
 category_user.get("U91836", "User tidak ditemukan")
 
-# --- Precision per user category ---
-def precision_category(last_news, user_id, news_df, category_user_map, k=5):
+def evaluate_user(last_news, user_id, news_df, category_user_map, k=5, show_rekom=True):
     category_user_set = category_user_map.get(user_id, set())
     if not category_user_set:
-        return 0.0
+        return {"precision": 0.0, "recall": 0.0}
 
-    print("UserId : ", user_id)
-    predicted_news_ids = get_recommendations(last_news, top_n=k)['News_ID'].values
+    print("UserId :", user_id)
+    # Ambil rekomendasi
+    rekom = get_recommendations(last_news, top_n=k)
 
+    if show_rekom:  # kalau mau tampilkan tabel rekomendasi
+        display(rekom)
+
+    predicted_news_ids = rekom['News_ID'].values
     category_prediction = news_df.loc[
         news_df['News_ID'].isin(predicted_news_ids[:k]), 'Category'
     ]
 
+    # Precision = jumlah artikel relevan / total artikel rekomendasi
     hits = sum([1 for kategori in category_prediction if kategori in category_user_set])
-    return hits / k
+    precision = hits / k
 
-# --- Recall per user category ---
-def recall_category(last_news, user_id, news_df, category_user_map, k=5):
-    category_user_set = category_user_map.get(user_id, set())
-    if not category_user_set:
-        return 0.0
-
-    print("UserId : ", user_id)
-    predicted_news_ids = get_recommendations(last_news, top_n=k)['News_ID'].values
-
-    # Ambil kategori artikel rekomendasi
-    category_prediction = news_df.loc[
-        news_df['News_ID'].isin(predicted_news_ids[:k]), 'Category'
-    ]
-
-    # Cari kategori user yang muncul minimal sekali di rekomendasi
+    # Recall = jumlah kategori relevan yang muncul / total kategori user
     categories_in_prediction = set(category_prediction)
     relevant_categories = categories_in_prediction.intersection(category_user_set)
+    recall = len(relevant_categories) / len(category_user_set)
 
-    # Recall = jumlah kategori user yang muncul / total kategori user
-    return len(relevant_categories) / len(category_user_set)
+    return {"precision": precision, "recall": recall}
 
-# Contoh user dan berita terakhir
-user_id = "U91836"
-last_news = "N56117"
+user_id = "U13740"
+last_news = "N58133"
 k = 10
 
-# Hitung Precision@k
-precision = precision_category(last_news, user_id, news_clean, category_user, k=k)
-# Hitung Recall
-recall = recall_category(last_news, user_id, news_clean, category_user, k=k)
+metrics = evaluate_user(last_news, user_id, news_clean, category_user, k=k, show_rekom=True)
+print(f"\nUser: {user_id}, Precision@{k}: {metrics['precision']:.2f}, Recall@{k}: {metrics['recall']:.2f}")
 
-# Tampilkan hasil
-print(f"User: {user_id}, Last News: {last_news}, Precision@{k}: {precision:.2f}, Recall: {recall}" )
+# --- Fungsi CBF Precision & Recall versi batch ---
+def cbf_eval(k=5, n_samples=100, return_per_user=False):
+    total_prec = 0
+    total_recall = 0
+    count = 0
 
-# --- Fungsi CBF Precision versi batch ---
-def cbf_precision(k=5,n_samples=100,return_per_user=False):
-    total_prec_cbf = 0
-    count_cbf = 0
     user_sample = behaviors_user['User_ID'].unique()[:n_samples]  # Subset user
-
-    per_user_prec = []
+    per_user_scores = []
 
     for user_id in user_sample:
         if user_id not in category_user:
             continue
 
+        # Cari berita terakhir yang diklik user
         news_user = behaviors_user[
             (behaviors_user['User_ID'] == user_id) &
             (behaviors_user['Label'] == 1)
         ]
-
-        news_user = news_user[news_user['News_ID'].isin(news_index_map.keys())]
-        last_news = news_user['News_ID'].values[-1] if not news_user.empty else None
-
-        if last_news :
-            try:
-                skor = precision_category(last_news, user_id, news_clean, category_user, k=5)
-                total_prec_cbf += skor
-                count_cbf += 1
-                per_user_prec.append((user_id, skor))
-            except:
-                continue
-
-    avg_prec = total_prec_cbf / count_cbf
-    if return_per_user:
-        return avg_prec, per_user_prec
-    return avg_prec
-
-# --- Fungsi CBF Recall versi batch ---
-def cbf_recall(k=5, n_samples=100,return_per_user=False):
-    total_recall_cbf = 0
-    count_cbf = 0
-    user_sample = behaviors_user['User_ID'].unique()[:n_samples]  # Subset user
-
-    per_user_recall = []
-
-    for user_id in user_sample:
-        if user_id not in category_user:
-            continue
-
-        news_user = behaviors_user[
-            (behaviors_user['User_ID'] == user_id) &
-            (behaviors_user['Label'] == 1)
-        ]
-
         news_user = news_user[news_user['News_ID'].isin(news_index_map.keys())]
         last_news = news_user['News_ID'].values[-1] if not news_user.empty else None
 
         if last_news:
             try:
-                skor = recall_category(last_news, user_id, news_clean, category_user, k=k)
-                total_recall_cbf += skor
-                count_cbf += 1
-                per_user_recall.append((user_id, skor))
+                # Hitung precision & recall user ini
+                metrics = evaluate_user(last_news, user_id, news_clean, category_user, k=k, show_rekom=False)
+                total_prec += metrics['precision']
+                total_recall += metrics['recall']
+                count += 1
+
+                per_user_scores.append((user_id, metrics['precision'], metrics['recall']))
             except:
                 continue
 
-    avg_recall = total_recall_cbf / count_cbf
+    avg_prec = total_prec / count if count > 0 else 0.0
+    avg_recall = total_recall / count if count > 0 else 0.0
 
     if return_per_user:
-        return avg_recall, per_user_recall
-    return avg_recall
+        return (avg_prec, avg_recall), per_user_scores
+    return avg_prec, avg_recall
 
-avg_prec, per_user_prec = cbf_precision(k=10, n_samples=50, return_per_user=True)
-avg_recall, per_user_recall = cbf_recall(k=10, n_samples=50, return_per_user=True)
+(avg_prec, avg_recall), per_user_scores = cbf_eval(k=10, n_samples=50, return_per_user=True)
 
-# Buat list untuk label dan nilai
+"""> Hasil rata rata dan 5 user pertama"""
+
+print(f"Rata-rata Precision@10: {avg_prec:.2f}")
+print(f"Rata-rata Recall@10   : {avg_recall:.2f}")
+
+# contoh lihat 5 user pertama
+print("\nTop 5 user pertama")
+for u, p, r in per_user_scores[:10]:
+    print(f"User: {u}, Precision: {p:.2f}, Recall: {r:.2f}")
+
+"""> Hasil Visualisasi"""
+
+df_eval = pd.DataFrame(per_user_scores, columns=['User_ID','Precision@10','Recall@10'])
+# Ubah df_eval jadi long format biar bisa langsung dipakai seaborn
+df_melt = df_eval.melt(id_vars='User_ID', value_vars=['Precision@10','Recall@10'],
+                       var_name='Metric', value_name='Score')
+
+avg_values = df_eval[['Precision@10','Recall@10']].mean()
 metrics = ['Precision', 'Recall']
-values = [avg_prec, avg_recall]
+values = [avg_values['Precision@10'], avg_values['Recall@10']]
 
-# Buat bar chart
-plt.figure(figsize=(7, 5))
-plt.bar(metrics, values, color=['#1A2A80', '#3B38A0'])
+plt.figure(figsize=(14,6))
+sns.barplot(x='User_ID', y='Score', hue='Metric', data=df_melt)
 
-# Tambahkan label nilai di atas setiap batang dalam format persen (%)
-for i, value in enumerate(values):
-    plt.text(
-        i,
-        value + 0.02,
-        f'{value*100:.0f}%', # Ubah ke persen
-        ha='center',
-        va='bottom',
-        fontsize=12,
-        fontweight='bold'
-    )
-
-# Atur judul dan label
-plt.title('Average Precision & Recall Content-Based Filtering', fontsize=12)
-plt.xlabel('Metrics', fontsize=10)
-plt.ylabel('Average Value', fontsize=10)
-plt.ylim(0, 1.0)
-plt.grid(axis='y', linestyle='--', alpha=0.7)
-
-# Simpan diagram ke file (opsional)
-plt.savefig('average_metrics_bar_chart.png')
-
-# Tampilkan plot
-plt.show()
-
-"""**Dari top-50 user:**
-
-1. **Content-based Precision@10 = 0.50** → setengah rekomendasi sesuai dengan kategori yang pernah diklik.
-2. **Content-based Recall@10 = 0.27**→ hanya 27% kategori user tercakup di top-10 rekomendasi.
-
-**Interpretasi:** sistem cenderung fokus pada konten mirip last clicked → akurat tapi belum menutupi seluruh minat user.
-"""
-
-# Buat DataFrame per user
-df_eval = pd.DataFrame({
-    'User_ID': [u for u, _ in per_user_prec],
-    'Precision@10': [v for _, v in per_user_prec],
-    'Recall@10': [v for _, v in per_user_recall]
-})
-
-# --- Visualisasi Bar Chart ---
-plt.figure(figsize=(12,6))
-sns.barplot(x='User_ID', y='Precision@10', data=df_eval, color='green', label='Precision')
-sns.barplot(x='User_ID', y='Recall@10', data=df_eval, color='red', alpha=0.5, label='Recall')
 plt.xticks(rotation=90)
 plt.title('Precision & Recall Content-Based Filtering per User (Top 50)')
 plt.ylabel('Score')
 plt.xlabel('User_ID')
-plt.legend()
+plt.legend(title="Metric")
+plt.tight_layout()
 plt.savefig('user_bar_chart.png')
 plt.show()
 
-"""## Saran
+plt.figure(figsize=(6,4))
+bars = plt.bar(metrics, values, color=['darkblue','indigo'], alpha=0.7)
+
+# Tambahkan nilai di atas bar
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, height + 0.02, f'{height:.2f}',
+             ha='center', va='bottom', fontsize=10)
+
+plt.title('Average Precision & Recall Content-Based Filtering', fontsize=12)
+plt.xlabel('Metrics', fontsize=10)
+plt.ylabel('Average Value', fontsize=10)
+plt.ylim(0,1.0)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.savefig('average_metrics_bar_chart.png')
+plt.show()
+
+"""**Dari top-50 user:**
+
+1. **Content-based Precision@10 = 0.49** → setengah rekomendasi sesuai dengan kategori yang pernah diklik.
+2. **Content-based Recall@10 = 0.28**→ hanya 28% kategori user tercakup di top-10 rekomendasi.
+
+**Interpretasi:** sistem cenderung fokus pada konten mirip last clicked → akurat tapi belum menutupi seluruh minat user.
+
+## Saran
 Tahap ini bertujuan untuk memberikan arahan pengembangan lebih lanjut berdasarkan hasil yang sudah dicapai. Beberapa hal yang bisa dilakukan ke depannya antara lain:
 
 1. Perbaikan Data
