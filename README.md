@@ -164,8 +164,8 @@ Dengan kombinasi kedua metrik ini, kita bisa menilai keseimbangan antara akurasi
 <img src="data/user_bar_chart.png" alt="model_comparison" width="100%">
 <img src="data/average_metrics_bar_chart.png" alt="model_comparison" width="100%">
 
-- Rata-rata Precision@10 = 0.50, artinya dari 10 rekomendasi yang diberikan, sekitar setengahnya relevan dengan kategori berita yang memang diminati pengguna.
-- Rata-rata Recall@10 = 0.28, yang berarti hanya 28% dari keseluruhan minat pengguna berhasil tercakup dalam 10 rekomendasi teratas.
+- Rata-rata Precision@10 = **0.49**, artinya dari 10 rekomendasi yang diberikan, sekitar setengahnya relevan dengan kategori berita yang memang diminati pengguna.
+- Rata-rata Recall@10 = **0.28**, yang berarti hanya 28% dari keseluruhan minat pengguna berhasil tercakup dalam 10 rekomendasi teratas.
 - Interpretasi: Sistem rekomendasi berbasis konten memiliki tingkat akurasi yang cukup baik karena rekomendasi cenderung sesuai dengan kategori berita terakhir yang diklik pengguna. Namun, cakupan minat pengguna masih terbatas, sehingga sistem lebih fokus pada kesamaan konten terakhir daripada menggali variasi minat pengguna secara lebih luas.
 
 **Kesimpulan**: Dengan ini kita bisa menjawab pertanyaan problem state yang ada di atas 
@@ -176,7 +176,7 @@ Judul dan abstrak berhasil digabungkan menjadi **Full Text**, kemudian diproses 
 Sistem rekomendasi berbasis **content-based filtering** dibangun menggunakan model **Nearest Neighbors** pada vektor **TF-IDF**. Sistem ini dapat memberikan daftar artikel yang paling **mirip dengan riwayat bacaan terakhir pengguna**.
 
 3. Seberapa relevan rekomendasi yang dihasilkan model content-based filtering dibandingkan dengan riwayat klik aktual pengguna?
-**Berdasarkan evaluasi pada top-50 user**, sistem menghasilkan **Precision@10 = 0.50** dan **Recall@10 = 0.28**.  Artinya, **separuh rekomendasi sudah relevan dengan minat pengguna**, namun **cakupannya masih terbatas**.  Sistem cenderung fokus pada **kesamaan dengan artikel terakhir yang diklik**, sehingga **akurat tetapi belum sepenuhnya menutupi seluruh variasi minat pengguna**.
+**Berdasarkan evaluasi pada top-50 user**, sistem menghasilkan **Precision@10 = 0.49** dan **Recall@10 = 0.28**.  Artinya, **separuh rekomendasi sudah relevan dengan minat pengguna**, namun **cakupannya masih terbatas**.  Sistem cenderung fokus pada **kesamaan dengan artikel terakhir yang diklik**, sehingga **akurat tetapi belum sepenuhnya menutupi seluruh variasi minat pengguna**.
 
 ----
 
