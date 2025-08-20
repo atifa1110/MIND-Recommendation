@@ -1,9 +1,8 @@
 ### Laporan Proyek Machine Learning - Atifa Fiorenza
 
-![Image](https://github.com/user-attachments/assets/5a2c96aa-62ab-4336-9292-4e49941dd176)
+![Image](https://github.com/user-attachments/assets/fe201ea6-3c65-4438-aa90-13660fd0bff4)
 
 ### Domain Proyek
-
 Dalam era digital, konsumsi berita secara daring mengalami peningkatan yang signifikan. Salah satu tantangan utama bagi platform berita adalah bagaimana menyajikan artikel yang relevan dan sesuai minat pembaca agar keterlibatan (engagement) tetap tinggi. Rekomendasi berita yang tidak sesuai dapat menyebabkan pembaca kehilangan minat dan beralih ke platform lain.
 
 Untuk mengatasi hal tersebut, penelitian di bidang news recommendation system banyak memanfaatkan teknik machine learning serta natural language processing (NLP). Model rekomendasi memungkinkan prediksi preferensi pengguna berdasarkan riwayat interaksi sebelumnya, baik berupa klik, bacaan, maupun kategori berita yang sering diakses. Dengan demikian, sistem dapat memberikan rekomendasi yang lebih personal, cepat, dan adaptif.
@@ -64,11 +63,15 @@ Berikut isi filenya :
 **entity_embedding.vec** → representasi vektor (embedding) untuk entitas yang diekstrak dari knowledge graph.
 **relation_embedding.vec** → representasi vektor (embedding) untuk hubungan antar entitas.
 
-Hasil pengecekan data menunjukkan:
-  * Missing value: ditemukan sebesar 2666 bar
-  * Duplikasi: Tidak ditemukan nilai yang duplikat pada semua kolom.
-  * Distribusi target: Sebagian besar wine tergolong pada kelas 5,6,dan 7 dan kelas lainnya tergolong sedikit sehingga dataset cenderung tidak seimbang.
-  * Outlier: Beberapa fitur, seperti residual sugar, chlorides, free sulfur dioxide, dan total sulfur dioxide, memiliki nilai ekstrem yang terlihat pada boxplot. Fitur lain relatif stabil dengan outlier lebih sedikit.
+### Hasil Pengecekan Data
+**News**
+- Missing values: ditemukan pada kolom *Abstract* (2666 baris), *Title_Entities* (3 baris), dan *Abstract_Entities* (4 baris).  
+- Duplikasi: tidak ditemukan nilai duplikat.  
+
+**Behaviors**
+- Missing values: ditemukan pada kolom *History* (3238 baris).  
+- Duplikasi: tidak ditemukan nilai duplikat.  
+
 
 ---
 ### Data Visualization 
