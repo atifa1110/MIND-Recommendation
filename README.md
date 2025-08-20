@@ -157,7 +157,7 @@ Evaluasi dilakukan menggunakan dua metrik utama, yaitu `Precision dan Recall`:
 
 Dengan kombinasi kedua metrik ini, kita bisa menilai keseimbangan antara akurasi rekomendasi (precision) dan cakupan rekomendasi (recall).
 
-**Salah satu Hasil Rekomendasi Kepada Salah Satu User**:
+**Salah satu Hasil Rekomendasi Top-10 Kepada Salah Satu User**:
 <img src="data/contoh_top.png" alt="model_comparison" width="100%">
 
 **Hasil Evaluasi pada Top-50 User**:
