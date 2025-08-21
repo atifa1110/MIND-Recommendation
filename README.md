@@ -122,7 +122,7 @@ Pada tahap ini, beberapa teknik persiapan data dilakukan untuk memastikan data s
 
 -----
 
-### Modeling
+### Modeling dan Result
 Pada tahap ini, sistem rekomendasi dibangun menggunakan `Content-Based Filtering (CBF)` dengan algoritma Nearest Neighbors. Model ini dipilih karena sederhana, intuitif, dan efektif untuk mencari artikel yang paling mirip berdasarkan representasi vektor teks (TF-IDF).
 
 **Nearest Neighbors** :  Algoritma ini bekerja dengan mencari sejumlah dokumen yang paling dekat (tetangga terdekat) terhadap sebuah dokumen target berdasarkan ukuran kesamaan tertentu. Dalam kasus ini digunakan cosine similarity, karena cocok untuk mengukur kemiripan antar vektor TF-IDF.
@@ -140,6 +140,9 @@ Pada tahap ini, sistem rekomendasi dibangun menggunakan `Content-Based Filtering
 
 Dengan model ini, sistem dapat merekomendasikan artikel yang paling mirip secara konten dengan artikel yang baru saja dibaca pengguna.
 
+**Salah satu Hasil Rekomendasi Top-10 Kepada Salah Satu User**:
+<img src="data/contoh_top.png" alt="model_comparison" width="100%">
+
 -----
 
 ### Evaluation
@@ -156,9 +159,6 @@ Evaluasi dilakukan menggunakan dua metrik utama, yaitu `Precision dan Recall`:
 ![alt text](data/image_recall.png)
 
 Dengan kombinasi kedua metrik ini, kita bisa menilai keseimbangan antara akurasi rekomendasi (precision) dan cakupan rekomendasi (recall).
-
-**Salah satu Hasil Rekomendasi Top-10 Kepada Salah Satu User**:
-<img src="data/contoh_top.png" alt="model_comparison" width="100%">
 
 **Hasil Evaluasi pada Top-50 User**:
 <img src="data/user_bar_chart.png" alt="model_comparison" width="100%">
